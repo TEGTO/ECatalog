@@ -1,0 +1,32 @@
+version: '3.4'
+
+services:
+  productapi:
+    container_name: product-api
+    image: ${DOCKER_REGISTRY-}productapi
+    build:
+      context: .
+      dockerfile: ProductApi/Dockerfile
+    ports: 
+      - 7151:8080
+    networks:
+      - ecatalog-net
+
+  db:
+    container_name: ecatalog-db
+    image: postgres:17
+    restart: always
+    ports:
+      - "54304:5432"
+    networks:
+      - ecatalog-net
+    volumes:
+      - ./init_history.sql:/docker-entrypoint-initdb.d/init_history.sql
+      - ecatalog-db:/var/lib/postgresql/data 
+
+
+volumes:
+  ecatalog-db:
+
+networks:
+  ecatalog-net:
