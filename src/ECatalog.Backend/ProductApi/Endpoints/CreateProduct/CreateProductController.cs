@@ -27,7 +27,7 @@ namespace ProductApi.Endpoints.CreateProduct
 
             var response = mapper.Map<CreateProductResponse>(createdProduct);
 
-            var locationUri = Url.Action(nameof(GetProductByCode), "GetProductByCode", new { code = response.Code }, Request.Scheme);
+            var locationUri = Url.Action(nameof(GetProductByCode), "GetProductByCodeAsync", new { code = response.Code }, Request.Scheme);
 
             return Created(locationUri, response);
         }

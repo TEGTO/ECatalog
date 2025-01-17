@@ -8,10 +8,10 @@ namespace ProductApi.Application.Validators
         public CreateProductRequestValidator()
         {
             RuleFor(x => x.Name)
-            .NotNull()
-            .NotEmpty()
-            .Length(3, 100)
-            .WithMessage("Name must be between 3 and 100 characters.");
+                .NotNull()
+                .NotEmpty()
+                .Length(3, 100)
+                .WithMessage("Name must be between 3 and 100 characters.");
 
             RuleFor(x => x.Description)
                 .MaximumLength(500)

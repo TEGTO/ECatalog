@@ -43,9 +43,12 @@ namespace ProductApi.Migrations
                         .HasColumnName("price");
 
                     b.HasKey("Code")
-                        .HasName("pk_server_slots");
+                        .HasName("pk_products");
 
-                    b.ToTable("server_slots", (string)null);
+                    b.ToTable("products", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_products_Code_Format", "code ~ '^\\d{4}-\\d{4}$'");
+                        });
                 });
 #pragma warning restore 612, 618
         }

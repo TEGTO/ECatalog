@@ -11,7 +11,7 @@ namespace ProductApi.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "server_slots",
+                name: "products",
                 columns: table => new
                 {
                     code = table.Column<string>(type: "text", nullable: false),
@@ -21,7 +21,8 @@ namespace ProductApi.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("pk_server_slots", x => x.code);
+                    table.PrimaryKey("pk_products", x => x.code);
+                    table.CheckConstraint("CK_products_Code_Format", "code ~ '^\\d{4}-\\d{4}$'");
                 });
         }
 
@@ -29,7 +30,7 @@ namespace ProductApi.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "server_slots");
+                name: "products");
         }
     }
 }
