@@ -3,9 +3,10 @@ using ExceptionHandling;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using ProductApi;
-using ProductApi.Application;
+using ProductApi.Documentation;
 using ProductApi.Infrastructure.Data;
 using ProductApi.Infrastructure.Repositories;
+using ApplicationAssembly = ProductApi.Application.AssemblyReference;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -47,7 +48,7 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddFluentValidationClientsideAdapters();
-builder.Services.AddValidatorsFromAssemblyContaining(typeof(AssemblyReference));
+builder.Services.AddValidatorsFromAssemblyContaining(typeof(ApplicationAssembly));
 
 ValidatorOptions.Global.LanguageManager.Enabled = false;
 
@@ -59,20 +60,13 @@ builder.Services.AddSingleton<IProductRepository, ProductRepository>();
 
 #endregion
 
-builder.Services.AddAutoMapper(AssemblyReference.Assembly);
+builder.Services.AddAutoMapper(ApplicationAssembly.Assembly);
 
 builder.Services.ConfigureCustomInvalidModelStateResponseControllers();
 
 builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
 
-if (builder.Environment.IsDevelopment())
-{
-    builder.Services.AddSwaggerGen(c =>
-    {
-        c.DescribeAllParametersInCamelCase();
-    });
-}
+builder.AddProductApiDocumentation();
 
 var app = builder.Build();
 

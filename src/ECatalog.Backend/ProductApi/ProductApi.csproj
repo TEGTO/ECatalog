@@ -12,7 +12,6 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" />
-    <PackageReference Include="Swashbuckle.AspNetCore" />
 	<PackageReference Include="Microsoft.EntityFrameworkCore.Design">
 		<PrivateAssets>all</PrivateAssets>
 		<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -22,6 +21,7 @@
   <ItemGroup>
     <ProjectReference Include="..\ProductApi.Application\ProductApi.Application.csproj" />
     <ProjectReference Include="..\ExceptionHandling\ExceptionHandling.csproj" />
+    <ProjectReference Include="..\ProductApi.Documentation\ProductApi.Documentation.csproj" />
     <ProjectReference Include="..\ProductApi.Infrastructure\ProductApi.Infrastructure.csproj" />
   </ItemGroup>
 

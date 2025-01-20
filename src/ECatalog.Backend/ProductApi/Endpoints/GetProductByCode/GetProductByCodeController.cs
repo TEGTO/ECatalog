@@ -1,7 +1,11 @@
 ﻿using AutoMapper;
+using ExceptionHandling;
 using Microsoft.AspNetCore.Mvc;
 using ProductApi.Core.Dtos.Endpoints.GetProductByCode;
+using ProductApi.Documentation.Examples.GetProductByCode;
 using ProductApi.Infrastructure.Repositories;
+using Swashbuckle.AspNetCore.Annotations;
+using Swashbuckle.AspNetCore.Filters;
 
 namespace ProductApi.Endpoints.GetProductByCode
 {
@@ -19,6 +23,15 @@ namespace ProductApi.Endpoints.GetProductByCode
         }
 
         [HttpGet("{code}")]
+        [SwaggerOperation(
+            Summary = "Get the product by code",
+            Description = "Finds the product by the code. If the product does not exist, returns a 404 NotFound."
+        )]
+        [SwaggerResponseExample(StatusCodes.Status200OK, typeof(GetProductByCodeResponseExample))]
+        [ProducesResponseType(typeof(GetProductByCodeResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ResponseError), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ResponseError), StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<GetProductByCodeResponse>> GetProductByCodeAsync(
             [FromRoute] GetProductByCodeRequest request, CancellationToken cancellationToken)
         {

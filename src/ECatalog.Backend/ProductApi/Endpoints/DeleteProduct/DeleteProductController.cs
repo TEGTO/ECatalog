@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using ExceptionHandling;
+using Microsoft.AspNetCore.Mvc;
 using ProductApi.Core.Dtos.Endpoints.DeleteProduct;
 using ProductApi.Infrastructure.Repositories;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace ProductApi.Endpoints.DeleteProduct
 {
@@ -16,6 +18,13 @@ namespace ProductApi.Endpoints.DeleteProduct
         }
 
         [HttpDelete("{code}")]
+        [SwaggerOperation(
+            Summary = "Delete a product",
+            Description = "Deletes a product based on the provided code. If the product does not exist, returns a 200 OK without performing any operation."
+        )]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ResponseError), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ResponseError), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> DeleteProductAsync([FromRoute] DeleteProductRequest request, CancellationToken cancellationToken)
         {
             var product = await repository.GetProductByCodeAsync(request.Code, cancellationToken);
