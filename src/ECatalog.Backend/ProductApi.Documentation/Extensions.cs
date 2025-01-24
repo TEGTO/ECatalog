@@ -6,12 +6,10 @@ using Swashbuckle.AspNetCore.Filters;
 
 namespace ProductApi.Documentation
 {
-    public static class Extenstions
+    public static class Extensions
     {
         public static IHostApplicationBuilder AddProductApiDocumentation(this IHostApplicationBuilder builder)
         {
-            builder.Services.AddFluentValidationRulesToSwagger();
-
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(options =>
             {
@@ -28,6 +26,7 @@ namespace ProductApi.Documentation
                 options.ExampleFilters();
             });
 
+            builder.Services.AddFluentValidationRulesToSwagger();
             builder.Services.AddSwaggerExamplesFromAssemblyOf(typeof(AssemblyReference));
 
             return builder;

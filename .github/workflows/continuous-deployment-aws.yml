@@ -1,0 +1,75 @@
+name: Continuous Deployment to AWS
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - "src/ECatalog.Backend/**"
+
+env:
+  DOTNET_VERSION: "8.0.x"
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        api:
+          - name: "Product API"
+            path: "ProductApi"
+            eb_env: "ProductApiEnvironment"
+            eb_app_name: "ECatalogProductApi"
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Cache .NET packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      - name: Restore dependencies
+        run: |
+          dotnet restore src/ECatalog.Backend/ECatalog.Backend.sln
+
+      - name: Build projects
+        run: |
+          dotnet build src/ECatalog.Backend/ECatalog.Backend.sln
+
+      - name: Run tests
+        run: |
+          dotnet test src/ECatalog.Backend/ECatalog.Backend.sln
+
+      - name: Publish
+        run: |
+          dotnet publish src/ECatalog.Backend/${{ matrix.api.path }} --configuration Release --output ./src/ECatalog.Backend/${{ matrix.api.path }}/publish
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-west-2
+
+      - name: Deploy to Elastic Beanstalk
+        run: |
+          zip -r deployment-package.zip ./src/ECatalog.Backend/${{ matrix.api.path }}/publish
+          aws elasticbeanstalk create-application-version \
+            --application-name ${{ matrix.api.eb_app_name }} \
+            --version-label "v-${{ github.run_number }}" \
+            --source-bundle S3Bucket=my-deployment-bucket,S3Key=deployment-package.zip
+          aws elasticbeanstalk update-environment \
+            --environment-name ${{ matrix.api.eb_env }} \
+            --version-label "v-${{ github.run_number }}"

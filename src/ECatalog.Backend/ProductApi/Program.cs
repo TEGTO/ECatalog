@@ -31,10 +31,12 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy(name: corsPolicy, policy =>
     {
-        policy.WithOrigins(allowedOrigins)
+        policy
+            .WithOrigins(allowedOrigins)
             .AllowAnyHeader()
             .AllowCredentials()
             .AllowAnyMethod();
+
         if (builder.Environment.IsDevelopment())
         {
             policy.SetIsOriginAllowed(origin => new Uri(origin).Host == "localhost");
