@@ -20,8 +20,9 @@ jobs:
         api:
           - name: "Product API"
             path: "ProductApi"
-            eb_env: "ProductApiEnvironment"
-            eb_app_name: "ECatalogProductApi"
+            eb_env: "app-productapi-eucentral1-001-env"
+            eb_app_name: "app-productapi-eucentral1-001"
+            s3_key: "deployment-package.zip"
 
     steps:
       - name: Checkout code
@@ -61,15 +62,24 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-west-2
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Zip Deployment Package
+        run: |
+          cd ./src/ECatalog.Backend/${{ matrix.api.path }}/publish
+          zip -r ../../../../deployment-package.zip .
+
+      - name: Upload to S3
+        run: |
+          aws s3 cp deployment-package.zip s3://${{ secrets.AWS_DEPLOYMENT_BUCKET }}/ecatalog/productapi/${{ matrix.api.s3_key }}
 
       - name: Deploy to Elastic Beanstalk
         run: |
-          zip -r deployment-package.zip ./src/ECatalog.Backend/${{ matrix.api.path }}/publish
           aws elasticbeanstalk create-application-version \
             --application-name ${{ matrix.api.eb_app_name }} \
             --version-label "v-${{ github.run_number }}" \
-            --source-bundle S3Bucket=my-deployment-bucket,S3Key=deployment-package.zip
+            --source-bundle S3Bucket=${{ secrets.AWS_DEPLOYMENT_BUCKET }},S3Key=ecatalog/productapi/${{ matrix.api.s3_key }}
           aws elasticbeanstalk update-environment \
+            --application-name ${{ matrix.api.eb_app_name }} \
             --environment-name ${{ matrix.api.eb_env }} \
             --version-label "v-${{ github.run_number }}"
