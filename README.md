@@ -1,7 +1,9 @@
 ## Web Application
 
-- **Api Url**:  
+- **Api Url (Azure)**:  
 [https://ecatalog-product-api-germanywestcentral-001.azurewebsites.net/api/v1](https://ecatalog-product-api-germanywestcentral-001.azurewebsites.net/api/v1)
+- **Api Url (AWS)**:  
+[http://app-productapi-eucentral1-001-env.eba-gbrsxfaq.eu-central-1.elasticbeanstalk.com/](http://app-productapi-eucentral1-001-env.eba-gbrsxfaq.eu-central-1.elasticbeanstalk.com/)
 > **Note:** May take a few minutes to load on the first request if the server has been idle.
 
 ## Installation Guide
