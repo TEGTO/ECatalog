@@ -2,11 +2,11 @@ name: Continuous Deployment to AWS
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
-    paths:
-      - "src/ECatalog.Backend/**"
+  # push:
+  #   branches:
+  #     - main
+  #   paths:
+  #     - "src/ECatalog.Backend/**"
 
 env:
   DOTNET_VERSION: "8.0.x"
