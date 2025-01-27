@@ -1,0 +1,96 @@
+name: Continuous Deployment to AWS CDK (TypeScript)
+
+on:
+  workflow_dispatch:
+  # push:
+  #   branches:
+  #     - main
+  #   paths:
+  #     - "src/ECatalog.Backend/**"
+
+env:
+  DOTNET_VERSION: "8.0.x"
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        api:
+          - path: "ProductApi"
+
+    env:
+      APPNAME: ${{ vars.APPNAME}}
+      ENVNAME: ${{ vars.ENVNAME}}
+      PUBLISH_PATH: ${{ vars.PUBLISH_PATH}}
+      ASPNETCORE_ENVIRONMENT: ${{ vars.ASPNETCORE_ENVIRONMENT}}
+      AllowedCORSOrigins: ${{ vars.ALLOWEDCORSORIGINS}}
+      UseCORS: ${{ vars.USECORS}}
+      EFCreateDatabase: ${{ vars.EFCREATEDATABASE}}
+      ConnectionStrings__Db: ${{ secrets.CONNECTIONSTRINGS__DB}}
+      AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID}}
+      AWS_REGION: ${{ secrets.AWS_REGION}}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Cache .NET packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      - name: Restore dependencies
+        run: |
+          dotnet restore src/ECatalog.Backend/ECatalog.Backend.sln
+
+      - name: Build projects
+        run: |
+          dotnet build src/ECatalog.Backend/ECatalog.Backend.sln
+
+      - name: Run tests
+        run: |
+          dotnet test src/ECatalog.Backend/ECatalog.Backend.sln
+
+      - name: Publish
+        run: |
+          dotnet publish src/ECatalog.Backend/${{ matrix.api.path }} --configuration Release --output ./src/ECatalog.Backend/${{ matrix.api.path }}/publish
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install AWS CDK
+        run: npm install -g aws-cdk
+
+      - name: Install Dependencies
+        run: |
+          cd cdk-ts
+          npm install
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: CDK Bootstrap
+        run: |
+          cd cdk-ts 
+          cdk bootstrap aws://${{ secrets.AWS_ACCOUNT_ID }}/${{ secrets.AWS_REGION }}
+
+      - name: CDK Deploy
+        run: |
+          cd cdk-ts
+          cdk deploy --require-approval never
