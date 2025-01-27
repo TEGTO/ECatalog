@@ -10,45 +10,44 @@ namespace Cdk
         {
             var app = new App();
 
-            var esbStack = new EBStack(app, "ECatalogStack", new EBEnvProps
+            var esbStack = new EBStack(app, "ECatalogProductApiStack", new EBEnvProps
             {
                 Env = new Amazon.CDK.Environment
                 {
-                    Account = "982081081153",
-                    Region = "eu-central-1"
+                    Account = System.Environment.GetEnvironmentVariable("AWS_ACCOUNT_ID"),
+                    Region = System.Environment.GetEnvironmentVariable("AWS_REGION"),
                 },
-                AppName = "eb-productapi-eucentral1-001",
-                EnvName = "Development",
-                Path = "../src/ECatalog.Backend/ProductApi/publish",
+                AppName = System.Environment.GetEnvironmentVariable("APPNAME"),
+                EnvName = System.Environment.GetEnvironmentVariable("ENVNAME"),
+                Path = System.Environment.GetEnvironmentVariable("PUBLISH_PATH"),
                 EnvironmentProperties = new List<CfnEnvironment.OptionSettingProperty>()
                 {
                      new CfnEnvironment.OptionSettingProperty
                      {
                          OptionName = "ASPNETCORE_ENVIRONMENT",
-                         Value = "Development"
+                         Value = System.Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT"),
                      },
                      new CfnEnvironment.OptionSettingProperty
                      {
                          OptionName = "AllowedCORSOrigins",
-                         Value = ""
+                         Value = System.Environment.GetEnvironmentVariable("AllowedCORSOrigins")
                      },
                     new CfnEnvironment.OptionSettingProperty
                     {
                         OptionName = "UseCORS",
-                        Value = "true"
+                        Value = System.Environment.GetEnvironmentVariable("UseCORS")
                     },
                     new CfnEnvironment.OptionSettingProperty
                     {
                         OptionName = "EFCreateDatabase",
-                        Value = "true"
+                        Value = System.Environment.GetEnvironmentVariable("EFCreateDatabase")
                     },
                     new CfnEnvironment.OptionSettingProperty
                     {
                         OptionName = "ConnectionStrings__Db",
-                        Value = ""
+                        Value = System.Environment.GetEnvironmentVariable("ConnectionStrings__Db")
                     },
                 }
-                //System.Environment.GetEnvironmentVariable("CDK_DEFAULT_ACCOUNT"),
             });
 
             app.Synth();
