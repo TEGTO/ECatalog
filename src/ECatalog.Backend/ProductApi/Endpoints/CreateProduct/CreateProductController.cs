@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using ExceptionHandling;
+using Marten;
 using Microsoft.AspNetCore.Mvc;
 using ProductApi.Core.Dtos.Endpoints.CreateProduct;
 using ProductApi.Core.Entities;
@@ -17,7 +18,7 @@ namespace ProductApi.Endpoints.CreateProduct
         private readonly IProductRepository repository;
         private readonly IMapper mapper;
 
-        public CreateProductController(IProductRepository repository, IMapper mapper)
+        public CreateProductController(IProductRepository repository, IDocumentSession documentSession, IMapper mapper)
         {
             this.repository = repository;
             this.mapper = mapper;

@@ -2,10 +2,13 @@ using DatabaseControl;
 using ExceptionHandling;
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using Marten;
 using ProductApi;
+using ProductApi.Core.Entities;
 using ProductApi.Documentation;
 using ProductApi.Infrastructure.Data;
 using ProductApi.Infrastructure.Repositories;
+using Weasel.Core;
 using ApplicationAssembly = ProductApi.Application.AssemblyReference;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -42,6 +45,24 @@ builder.Services.AddCors(options =>
             policy.SetIsOriginAllowed(origin => new Uri(origin).Host == "localhost");
         }
     });
+});
+
+#endregion
+
+#region Marten
+
+builder.Services.AddMarten(options =>
+{
+    options.Connection(builder.Configuration.GetConnectionString(ConfigurationKeys.DATABASE_CONNECTION_STRING)!);
+
+    options.UseSystemTextJsonForSerialization();
+
+    options.Schema.For<Product>().Identity(x => x.Code)/*.SoftDeleted()*/;
+
+    if (builder.Environment.IsDevelopment())
+    {
+        options.AutoCreateSchemaObjects = AutoCreate.All;
+    }
 });
 
 #endregion
